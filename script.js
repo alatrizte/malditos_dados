@@ -196,59 +196,55 @@ if (canvas.getContext) {
         );
     }
 
-    // let dictPositions = {
-    //     1:{pos:1, active:true, n: 1},
-    //     2:{pos:15, active:false, n: 3},
-    //     3:{pos:17, active:false, n: 3},
-    // }
-    // Función para generar un número aleatorio entre 1 y 36
-    function getRandomPosition() {
-        return Math.floor(Math.random() * 36) + 1;
+    // Funciones auxiliares (mantén las que ya teníamos)
+    function getRandomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    // Función para generar el nuevo diccionario
-    function generateRandomDictPositions() {
-        let newDict = {};
-        let usedPositions = new Set();
-        let activeIndex = Math.floor(Math.random() * 3) + 1; // Elegimos aleatoriamente cuál será el elemento activo
+    function generateUniquePosition(usedPositions, maxPosition) {
+        let randomPos;
+        do {
+            randomPos = getRandomNumber(1, maxPosition);
+        } while (usedPositions.includes(randomPos));
+        return randomPos;
+    }
 
-        for (let i = 1; i <= 8; i++) {
-            let randomPos;
-            do {
-                randomPos = getRandomPosition();
-            } while (usedPositions.has(randomPos));
-
-            usedPositions.add(randomPos);
-
-            newDict[i] = {
-                pos: randomPos,
-                active: i === activeIndex, // Solo será true para el elemento elegido
-                n: Math.floor(Math.random() * 6) + 1 // Número aleatorio entre 1 y 3
-            };
+    // Función para añadir un nuevo objeto
+    function addNewObject(dict, maxPosition=36, maxN=6) {
+        const newKey = Object.keys(dict).length + 1;
+        let numberFace = getRandomNumber(1, maxN);
+        let usedPositions = [];
+        if (length.dices > 0) {
+            usedPositions = dices.map(dice => dice.position);
         }
-
-        return newDict;
+        let position = generateUniquePosition(usedPositions, maxPosition);
+        // Creamos un nuevo dado y lo añadimos al array
+        let dice = new Dice(position, numberFace);
+        dices.push(dice);
     }
 
-    // Generar el nuevo diccionario
-    let dictPositions = generateRandomDictPositions();
+    function activateRandomDice(dices) {
+        // Seleccionar un dado aleatorio
+        const randomIndex = Math.floor(Math.random() * dices.length);
+        const selectedDice = dices[randomIndex];
+    
+        // Activar el dado seleccionado
+        selectedDice.active = true;
+    }
 
     // Ahora, creamos un array para almacenar los dados
     let dices = [];
-    // Iteramos sobre el diccionario para crear los dados
-    for (let key in dictPositions) {
-        // Convertimos la clave a número y lo usamos como numberFace
-        let numberFace = dictPositions[key].n;
-        
-        // Usamos el valor de 'pos' como position
-        let position = dictPositions[key].pos;
-        // Usamos el valor de 'active' como active
-        let active = dictPositions[key].active;
-        
-        // Creamos un nuevo dado y lo añadimos al array
-        let dice = new Dice(position, numberFace, active);
-        dices.push(dice);
-    }   
+
+    for (let i = 1; i <= 8; i++) {
+        addNewObject(dices)
+    }
+
+    activateRandomDice(dices);
+
+    // Añadir un nuevo objeto cada 15 segundos
+    setInterval(() => {
+        addNewObject(dices);
+    }, 7000);
 
     function animate() {
         // Limpiar el canvas
