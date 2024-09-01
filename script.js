@@ -125,9 +125,11 @@ if (canvas.getContext) {
                 }
                 usedPositions = usedPositions.filter(item => item !== actualPosition);
                 usedPositions.push(activeDice.position);                
-                console.log(usedPositions);
+
                 // Después de mover, verificar si hay dados adyacentes con la misma cara
-                checkForMatches();
+                if (activeDice.numberFace > 1){
+                    checkForMatches(activeDice.numberFace);
+                }
             }
             else {
                 isOccupied.active = true;
@@ -137,66 +139,41 @@ if (canvas.getContext) {
     });
 
     // Verificar si hay dados adyacentes con el mismo numberFace
-    function checkForMatches() {
+    function checkForMatches(number) {
         // Agrupar los dados por su numberFace
-        let diceGroups = {};
-        for (let dice of dices) {
-            if (dice.numberFace > 1){
-                if (!diceGroups[dice.numberFace]) {
-                    diceGroups[dice.numberFace] = [];
-                }
-                diceGroups[dice.numberFace].push(dice);
+        let diceGroup = [];
+        for (let dice of dices){
+            if (dice.numberFace == number){
+                diceGroup.push(dice.position);
             }
         }
-
-        // Verificar cada grupo
-        for (let face in diceGroups) {
-            let group = diceGroups[face];
-
-            // Verificar si hay suficientes dados adyacentes para que desaparezcan
-            if (group.length >= face) {
-                let toRemove = [];
-
-                // Ordenar por posición en el tablero para facilitar la comparación
-                group.sort((a, b) => a.position - b.position);
-                // Verificar si están consecutivamente adyacentes
-                for (let i = 0; i <= group.length - face; i++) {
-                    let consecutive = true;
-
-                    for (let j = 0; j < face - 1; j++) {
-                        let currentPos = group[i + j].position;
-                        let nextPos = group[i + j + 1].position;
-
-                        if (!areAdjacent(currentPos, nextPos)) {
-                            consecutive = false;
-                            break;
-                        }
-                    }
-
-                    if (consecutive) {
-                        const itemNoActivo = group.filter(item => item.active !== true);
-                        toRemove.push(...itemNoActivo);
-                    }
-                }
-
-                // Eliminar los dados que coinciden
-                if (toRemove.length > 0) {
-                    dices = dices.filter(dice => !toRemove.includes(dice));
-                }
+        diceGroup.sort((a, b) => a - b);
+        let count = 1;
+        console.log(diceGroup);
+        for (let i=0; i < diceGroup.length; i++){
+            if (diceGroup[i] == diceGroup[i+1] - 1){
+                count++;
+            }
+            if (diceGroup[i] == diceGroup[i+1] - 6){
+                count++;
+            }
+            if (diceGroup[i+1] == diceGroup[i+2] - 5){
+                count++;
+            }
+            if (diceGroup[i] == diceGroup[i+1] - 5 && diceGroup[i+1] == diceGroup[i+2] - 1){
+                count++;
+            }
+            console.log(count);
+            if (count >= number){
+                console.log("Exito!!!");
+                // deleteDices(number);
             }
         }
     }
-
-    // Verificar si dos posiciones son adyacentes
-    function areAdjacent(pos1, pos2) {
-        const pos1Coord = gridPositions[pos1];
-        const pos2Coord = gridPositions[pos2];
-
-        return (
-            (pos1Coord.x === pos2Coord.x && Math.abs(pos1Coord.y - pos2Coord.y) === squareSize) || // Verticalmente adyacente
-            (pos1Coord.y === pos2Coord.y && Math.abs(pos1Coord.x - pos2Coord.x) === squareSize)    // Horizontalmente adyacente
-        );
+    function deleteDices(number){
+        dices = dices.filter(dice => dice.numberFace !== number || dice.active === true);
     }
+
 
     // Funciones auxiliares (mantén las que ya teníamos)
     function getRandomNumber(min, max) {
@@ -208,7 +185,6 @@ if (canvas.getContext) {
         do {
             randomPos = getRandomNumber(1, maxPosition);
         } while (usedPositions.includes(randomPos));
-        console.log(randomPos);
         return randomPos;
     }
 
