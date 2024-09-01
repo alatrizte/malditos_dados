@@ -115,7 +115,7 @@ if (canvas.getContext) {
                 activeDice.coord_position.x = newX;
                 activeDice.coord_position.y = newY;
                 activeDice.numberFace = diceMap[activeDice.numberFace][key].number;
-
+                let actualPosition = activeDice.position;
                 // Actualizar la posición del dado en el tablero
                 for (const [k, v] of Object.entries(gridPositions)) {
                     if (v.x === activeDice.coord_position.x && v.y === activeDice.coord_position.y) {
@@ -123,7 +123,9 @@ if (canvas.getContext) {
                         break; // Rompe el ciclo una vez que se encuentra la coincidencia
                     }
                 }
-
+                usedPositions = usedPositions.filter(item => item !== actualPosition);
+                usedPositions.push(activeDice.position);                
+                console.log(usedPositions);
                 // Después de mover, verificar si hay dados adyacentes con la misma cara
                 checkForMatches();
             }
@@ -206,18 +208,17 @@ if (canvas.getContext) {
         do {
             randomPos = getRandomNumber(1, maxPosition);
         } while (usedPositions.includes(randomPos));
+        console.log(randomPos);
         return randomPos;
     }
 
+    let usedPositions = [];
     // Función para añadir un nuevo objeto
     function addNewObject(dict, maxPosition=36, maxN=6) {
         const newKey = Object.keys(dict).length + 1;
         let numberFace = getRandomNumber(1, maxN);
-        let usedPositions = [];
-        if (length.dices > 0) {
-            usedPositions = dices.map(dice => dice.position);
-        }
         let position = generateUniquePosition(usedPositions, maxPosition);
+        usedPositions.push(position);
         // Creamos un nuevo dado y lo añadimos al array
         let dice = new Dice(position, numberFace);
         dices.push(dice);
@@ -235,16 +236,16 @@ if (canvas.getContext) {
     // Ahora, creamos un array para almacenar los dados
     let dices = [];
 
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
         addNewObject(dices)
     }
 
     activateRandomDice(dices);
 
     // Añadir un nuevo objeto cada 15 segundos
-    setInterval(() => {
-        addNewObject(dices);
-    }, 7000);
+    // setInterval(() => {
+    //     addNewObject(dices);
+    // }, 7000);
 
     function animate() {
         // Limpiar el canvas
@@ -257,6 +258,9 @@ if (canvas.getContext) {
         // Actualizar y dibujar cada dado
         for (let dice of dices) {
             dice.update();
+            if (!usedPositions.includes(dice.position)){
+                usedPositions.push(dice.position);
+            }
         }
 
         // Solicitar el siguiente cuadro de animación
