@@ -10,6 +10,8 @@ if (canvas.getContext) {
     const offset = 5; // Offset inicial para x e y
     const gridPositions = {};
 
+    let puntuacion = 0;
+
     // Itera sobre las filas y columnas de la cuadrícula
     for (let row = 0; row < gridSize; row++) {
         for (let col = 0; col < gridSize; col++) {
@@ -138,6 +140,59 @@ if (canvas.getContext) {
         }
     });
 
+    function crearMatrizDePosiciones(posiciones, filas=6, columnas=6) {
+        // Crear una matriz llena de ceros
+        const matriz = Array.from({ length: filas }, () => Array(columnas).fill(0));
+    
+        // Llenar la matriz basándose en las posiciones dadas
+        posiciones.forEach(posicion => {
+            if (posicion > 0 && posicion <= filas * columnas) {
+                const fila = Math.floor((posicion - 1) / columnas);
+                const columna = (posicion - 1) % columnas;
+                matriz[fila][columna] = 1;
+            }
+        });
+    
+        return matriz;
+    }
+
+    function contarGrupos(grid, number) {
+        const filas = grid.length;
+        const columnas = grid[0].length;
+        const visitados = Array.from({ length: filas }, () => Array(columnas).fill(false));
+        const grupos = [];
+    
+        function dfs(x, y) {
+            if (x < 0 || y < 0 || x >= filas || y >= columnas || visitados[x][y] || grid[x][y] === 0) {
+                return 0;
+            }
+    
+            visitados[x][y] = true;
+            let tamaño = 1;
+    
+            // Explorar las cuatro direcciones
+            tamaño += dfs(x - 1, y); // arriba
+            tamaño += dfs(x + 1, y); // abajo
+            tamaño += dfs(x, y - 1); // izquierda
+            tamaño += dfs(x, y + 1); // derecha
+    
+            return tamaño;
+        }
+    
+        for (let i = 0; i < filas; i++) {
+            for (let j = 0; j < columnas; j++) {
+                if (grid[i][j] === 1 && !visitados[i][j]) {
+                    const tamaño = dfs(i, j);
+                    if (tamaño == number){
+                        grupos.push(tamaño);
+                    }
+                }
+            }
+        }
+    
+        return grupos;
+    }
+
     // Verificar si hay dados adyacentes con el mismo numberFace
     function checkForMatches(number) {
         // Agrupar los dados por su numberFace
@@ -148,30 +203,27 @@ if (canvas.getContext) {
             }
         }
         diceGroup.sort((a, b) => a - b);
-        let count = 1;
-        console.log(diceGroup);
-        for (let i=0; i < diceGroup.length; i++){
-            if (diceGroup[i] == diceGroup[i+1] - 1){
-                count++;
-            }
-            if (diceGroup[i] == diceGroup[i+1] - 6){
-                count++;
-            }
-            if (diceGroup[i+1] == diceGroup[i+2] - 5){
-                count++;
-            }
-            if (diceGroup[i] == diceGroup[i+1] - 5 && diceGroup[i+1] == diceGroup[i+2] - 1){
-                count++;
-            }
-            console.log(count);
-            if (count >= number){
-                console.log("Exito!!!");
-                // deleteDices(number);
-            }
-        }
+        // console.log(diceGroup);
+        const matrizResultante = crearMatrizDePosiciones(diceGroup);
+
+        // matrizResultante.forEach(fila => console.log(fila.join(' ')));
+
+        const gruposEncontrados = contarGrupos(matrizResultante, number);
+        gruposEncontrados.length > 0 ? deleteDices(number) : "";
+        
     }
+
     function deleteDices(number){
+        // Guardamos la longitud original del array
+        const longitudOriginal = dices.length;
+
         dices = dices.filter(dice => dice.numberFace !== number || dice.active === true);
+
+        // Calculamos la diferencia
+        const elementosEliminados = longitudOriginal - dices.length;
+
+        puntuacion += elementosEliminados * number
+        console.log(puntuacion);
     }
 
 
