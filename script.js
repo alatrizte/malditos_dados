@@ -1,4 +1,8 @@
 const canvas = document.getElementById("canvas");
+const print_button = document.getElementById("print");
+const control_button = document.getElementById("control");
+let intervalId; 
+
 if (canvas.getContext) {
     /** @type {CanvasRenderingContext2D} */
     const ctx = canvas.getContext("2d");
@@ -243,13 +247,19 @@ if (canvas.getContext) {
     let usedPositions = [];
     // Función para añadir un nuevo objeto
     function addNewObject(dict, maxPosition=36, maxN=6) {
-        const newKey = Object.keys(dict).length + 1;
-        let numberFace = getRandomNumber(1, maxN);
-        let position = generateUniquePosition(usedPositions, maxPosition);
-        usedPositions.push(position);
-        // Creamos un nuevo dado y lo añadimos al array
-        let dice = new Dice(position, numberFace);
-        dices.push(dice);
+            if (dices.length < 36){
+            const newKey = Object.keys(dict).length + 1;
+            let numberFace = getRandomNumber(1, maxN);
+            let position = generateUniquePosition(usedPositions, maxPosition);
+            usedPositions.push(position);
+            // Creamos un nuevo dado y lo añadimos al array
+            let dice = new Dice(position, numberFace);
+            dices.push(dice);
+        } else  {
+            console.log("Game OVER");
+            stopInterval();
+        }
+
     }
 
     function activateRandomDice(dices) {
@@ -270,10 +280,18 @@ if (canvas.getContext) {
 
     activateRandomDice(dices);
 
-    // Añadir un nuevo objeto cada 15 segundos
-    // setInterval(() => {
-    //     addNewObject(dices);
-    // }, 7000);
+    // Función para iniciar el intervalo
+    function startInterval() {
+        intervalId = setInterval(() => {
+            addNewObject(dices);
+        }, 7000);
+    }
+
+    // Función para detener el intervalo
+    function stopInterval() {
+        clearInterval(intervalId);
+    }
+    
 
     function animate() {
         // Limpiar el canvas
@@ -295,4 +313,25 @@ if (canvas.getContext) {
         window.requestAnimationFrame(animate);
     }
     animate();
+    startInterval();
+
+    print_button.addEventListener("click", (e) => {
+        console.log(dices);
+    })
+
+    // Evento para el botón de control
+    control_button.addEventListener('click', function() {
+        if (this.classList.contains('paused')) {
+            // Si está pausado, reiniciar el intervalo
+            startInterval();
+            this.classList.remove('paused');
+            this.textContent = 'Pausar';
+        } else {
+            // Si está en marcha, detener el intervalo
+            stopInterval();
+            this.classList.add('paused');
+            this.textContent = 'Reanudar';
+        }
+    });
 }
+
