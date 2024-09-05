@@ -1,6 +1,7 @@
 const canvas = document.getElementById("canvas");
 const print_button = document.getElementById("print");
 const control_button = document.getElementById("control");
+const marcador = document.getElementById("marcador");
 let intervalId; 
 
 if (canvas.getContext) {
@@ -15,6 +16,8 @@ if (canvas.getContext) {
     const gridPositions = {};
 
     let puntuacion = 0;
+    marcador.innerHTML = puntuacion;
+    let timer = 7000;
 
     // Itera sobre las filas y columnas de la cuadrícula
     for (let row = 0; row < gridSize; row++) {
@@ -33,24 +36,24 @@ if (canvas.getContext) {
             this.numberFace = numberFace;
             this.active = active;
         }
-        
+
         draw() {
             // Dibujar el cuadrado
             if (this.active) {
-                ctx.strokeStyle = 'green'; // Color del borde
+                ctx.fillStyle = '#8eb8e5'; // Color del borde
             } else {
-                ctx.strokeStyle = 'red';
+                ctx.fillStyle = '#7c99b4';
             }
             
-            ctx.strokeRect(this.coord_position.x, this.coord_position.y, squareSize, squareSize);
+            ctx.fillRect(this.coord_position.x, this.coord_position.y, squareSize, squareSize);
 
             // Dibujar el número en el centro del cuadrado
             if (this.active) {
-                ctx.fillStyle = 'green'; // Color del texto
+                ctx.fillStyle = '#492c1d'; // Color del texto
             } else {
-                ctx.fillStyle = 'red'; 
+                ctx.fillStyle = 'white'; 
             }
-            ctx.font = '20px Arial'; // Fuente del texto
+            ctx.font = 'bold 24px Ubuntu'; // Fuente del texto
             ctx.textAlign = 'center'; // Alinear el texto al centro
             ctx.textBaseline = 'middle'; // Alinear verticalmente al medio
             ctx.fillText(this.numberFace, this.coord_position.x + squareSize / 2, this.coord_position.y + squareSize / 2);
@@ -135,6 +138,7 @@ if (canvas.getContext) {
                 // Después de mover, verificar si hay dados adyacentes con la misma cara
                 if (activeDice.numberFace > 1){
                     checkForMatches(activeDice.numberFace);
+                    console.log(`checkeando matches de ${activeDice.numberFace}`);
                 }
             }
             else {
@@ -208,12 +212,13 @@ if (canvas.getContext) {
         }
         diceGroup.sort((a, b) => a - b);
         // console.log(diceGroup);
-        const matrizResultante = crearMatrizDePosiciones(diceGroup);
+        let matrizResultante = crearMatrizDePosiciones(diceGroup);
 
-        // matrizResultante.forEach(fila => console.log(fila.join(' ')));
-
-        const gruposEncontrados = contarGrupos(matrizResultante, number);
-        gruposEncontrados.length > 0 ? deleteDices(number) : "";
+        let gruposEncontrados = contarGrupos(matrizResultante, number);
+        if (gruposEncontrados.length > 0){
+            deleteDices(number);
+            // matrizResultante.forEach(fila => console.log(fila.join(' ')));
+        };
         
     }
 
@@ -227,9 +232,10 @@ if (canvas.getContext) {
         const elementosEliminados = longitudOriginal - dices.length;
 
         puntuacion += elementosEliminados * number
+        timer -= puntuacion * 100;
         console.log(puntuacion);
+        marcador.innerHTML = puntuacion;
     }
-
 
     // Funciones auxiliares (mantén las que ya teníamos)
     function getRandomNumber(min, max) {
@@ -298,7 +304,7 @@ if (canvas.getContext) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Dibujar fondo
-        ctx.fillStyle = "lightgrey";
+        ctx.fillStyle = "#6b7f82";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Actualizar y dibujar cada dado
@@ -317,6 +323,7 @@ if (canvas.getContext) {
 
     print_button.addEventListener("click", (e) => {
         console.log(dices);
+        // const objetoActivo = dices.find(objeto => objeto.active === true);
     })
 
     // Evento para el botón de control
