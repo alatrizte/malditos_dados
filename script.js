@@ -1,3 +1,5 @@
+import { Dice } from './Dice.js';
+
 const canvas = document.getElementById("canvas");
 const print_button = document.getElementById("print");
 const control_button = document.getElementById("control");
@@ -26,41 +28,6 @@ if (canvas.getContext) {
             const x = offset + col * squareSize;
             const y = offset + row * squareSize;
             gridPositions[position] = { x: x, y: y };
-        }
-    }
-
-    class Dice {
-        constructor(position, numberFace, active=false) {
-            this.position = position;
-            this.coord_position = { ...gridPositions[position] };
-            this.numberFace = numberFace;
-            this.active = active;
-        }
-
-        draw() {
-            // Dibujar el cuadrado
-            if (this.active) {
-                ctx.fillStyle = '#8eb8e5'; // Color del borde
-            } else {
-                ctx.fillStyle = '#7c99b4';
-            }
-            
-            ctx.fillRect(this.coord_position.x, this.coord_position.y, squareSize, squareSize);
-
-            // Dibujar el número en el centro del cuadrado
-            if (this.active) {
-                ctx.fillStyle = '#492c1d'; // Color del texto
-            } else {
-                ctx.fillStyle = 'white'; 
-            }
-            ctx.font = 'bold 24px Ubuntu'; // Fuente del texto
-            ctx.textAlign = 'center'; // Alinear el texto al centro
-            ctx.textBaseline = 'middle'; // Alinear verticalmente al medio
-            ctx.fillText(this.numberFace, this.coord_position.x + squareSize / 2, this.coord_position.y + squareSize / 2);
-        }
-
-        update() {
-            this.draw();
         }
     }
 
@@ -97,7 +64,6 @@ if (canvas.getContext) {
             ArrowDown: {number: 5, x: 0, y: 50} 
         },
     };
-
     // Escucha las teclas de flecha
     document.addEventListener('keydown', (event) => {
         const { key } = event;
@@ -232,8 +198,9 @@ if (canvas.getContext) {
         const elementosEliminados = longitudOriginal - dices.length;
 
         puntuacion += elementosEliminados * number
-        timer -= puntuacion * 100;
+        timer -= puntuacion * 10;
         console.log(puntuacion);
+        startInterval();
         marcador.innerHTML = puntuacion;
     }
 
@@ -290,7 +257,7 @@ if (canvas.getContext) {
     function startInterval() {
         intervalId = setInterval(() => {
             addNewObject(dices);
-        }, 7000);
+        }, timer);
     }
 
     // Función para detener el intervalo
@@ -309,7 +276,7 @@ if (canvas.getContext) {
 
         // Actualizar y dibujar cada dado
         for (let dice of dices) {
-            dice.update();
+            dice.update(ctx);
             if (!usedPositions.includes(dice.position)){
                 usedPositions.push(dice.position);
             }
@@ -323,6 +290,7 @@ if (canvas.getContext) {
 
     print_button.addEventListener("click", (e) => {
         console.log(dices);
+        console.log(timer)
         // const objetoActivo = dices.find(objeto => objeto.active === true);
     })
 
