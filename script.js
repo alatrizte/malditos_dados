@@ -64,6 +64,58 @@ if (canvas.getContext) {
             ArrowDown: {number: 5, x: 0, y: 50} 
         },
     };
+
+    function crearMatrizDePosiciones(posiciones, filas=6, columnas=6) {
+        // Crear una matriz llena de ceros
+        const matriz = Array.from({ length: filas }, () => Array(columnas).fill(0));
+    
+        // Llenar la matriz basándose en las posiciones dadas
+        posiciones.forEach(posicion => {
+            if (posicion > 0 && posicion <= filas * columnas) {
+                const fila = Math.floor((posicion - 1) / columnas);
+                const columna = (posicion - 1) % columnas;
+                matriz[fila][columna] = 1;
+            }
+        });
+    
+        return matriz;
+    };
+
+    function deleteDices(number){
+        // Guardamos la longitud original del array
+        const longitudOriginal = dices.length;
+
+        dices = dices.filter(dice => dice.numberFace !== number || dice.active === true);
+
+        // Calculamos la diferencia
+        const elementosEliminados = longitudOriginal - dices.length;
+
+        puntuacion += elementosEliminados * number
+        timer -= puntuacion * 10;
+        console.log(puntuacion);
+        marcador.innerHTML = puntuacion;
+    }
+
+    // Verificar si hay dados adyacentes con el mismo numberFace
+    function checkForMatches(number) {
+        // Agrupar los dados por su numberFace
+        let diceGroup = [];
+        for (let dice of dices){
+            if (dice.numberFace == number){
+                diceGroup.push(dice.position);
+            }
+        }
+        diceGroup.sort((a, b) => a - b);
+        // console.log(diceGroup);
+        let matrizResultante = crearMatrizDePosiciones(diceGroup);
+
+        let gruposEncontrados = contarGrupos(matrizResultante, number);
+        if (gruposEncontrados.length > 0){
+            deleteDices(number);
+            // matrizResultante.forEach(fila => console.log(fila.join(' ')));
+        };
+    }
+    
     // Escucha las teclas de flecha
     document.addEventListener('keydown', (event) => {
         const { key } = event;
@@ -104,7 +156,6 @@ if (canvas.getContext) {
                 // Después de mover, verificar si hay dados adyacentes con la misma cara
                 if (activeDice.numberFace > 1){
                     checkForMatches(activeDice.numberFace);
-                    console.log(`checkeando matches de ${activeDice.numberFace}`);
                 }
             }
             else {
@@ -113,22 +164,6 @@ if (canvas.getContext) {
             }
         }
     });
-
-    function crearMatrizDePosiciones(posiciones, filas=6, columnas=6) {
-        // Crear una matriz llena de ceros
-        const matriz = Array.from({ length: filas }, () => Array(columnas).fill(0));
-    
-        // Llenar la matriz basándose en las posiciones dadas
-        posiciones.forEach(posicion => {
-            if (posicion > 0 && posicion <= filas * columnas) {
-                const fila = Math.floor((posicion - 1) / columnas);
-                const columna = (posicion - 1) % columnas;
-                matriz[fila][columna] = 1;
-            }
-        });
-    
-        return matriz;
-    }
 
     function contarGrupos(grid, number) {
         const filas = grid.length;
@@ -165,43 +200,6 @@ if (canvas.getContext) {
         }
     
         return grupos;
-    }
-
-    // Verificar si hay dados adyacentes con el mismo numberFace
-    function checkForMatches(number) {
-        // Agrupar los dados por su numberFace
-        let diceGroup = [];
-        for (let dice of dices){
-            if (dice.numberFace == number){
-                diceGroup.push(dice.position);
-            }
-        }
-        diceGroup.sort((a, b) => a - b);
-        // console.log(diceGroup);
-        let matrizResultante = crearMatrizDePosiciones(diceGroup);
-
-        let gruposEncontrados = contarGrupos(matrizResultante, number);
-        if (gruposEncontrados.length > 0){
-            deleteDices(number);
-            // matrizResultante.forEach(fila => console.log(fila.join(' ')));
-        };
-        
-    }
-
-    function deleteDices(number){
-        // Guardamos la longitud original del array
-        const longitudOriginal = dices.length;
-
-        dices = dices.filter(dice => dice.numberFace !== number || dice.active === true);
-
-        // Calculamos la diferencia
-        const elementosEliminados = longitudOriginal - dices.length;
-
-        puntuacion += elementosEliminados * number
-        timer -= puntuacion * 10;
-        console.log(puntuacion);
-        startInterval();
-        marcador.innerHTML = puntuacion;
     }
 
     // Funciones auxiliares (mantén las que ya teníamos)
