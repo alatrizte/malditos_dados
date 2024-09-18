@@ -1,4 +1,5 @@
 import { Dice } from './Dice.js';
+import { gridPositions } from './Dice.js';
 
 const canvas = document.getElementById("canvas");
 const print_button = document.getElementById("print");
@@ -12,24 +13,9 @@ if (canvas.getContext) {
     canvas.width = 310;
     canvas.height = 310;
     
-    const gridSize = 6; // Tamaño de la cuadrícula (6x6)
-    const squareSize = 50; // Tamaño de cada cuadrado (50px * 50px)
-    const offset = 5; // Offset inicial para x e y
-    const gridPositions = {};
-
     let puntuacion = 0;
     marcador.innerHTML = puntuacion;
     let timer = 7000;
-
-    // Itera sobre las filas y columnas de la cuadrícula
-    for (let row = 0; row < gridSize; row++) {
-        for (let col = 0; col < gridSize; col++) {
-            const position = row * gridSize + col + 1;
-            const x = offset + col * squareSize;
-            const y = offset + row * squareSize;
-            gridPositions[position] = { x: x, y: y };
-        }
-    }
 
     // Mapeo de las caras del dado según la dirección de la tecla
     const diceMap = {
@@ -150,8 +136,6 @@ if (canvas.getContext) {
                         break; // Rompe el ciclo una vez que se encuentra la coincidencia
                     }
                 }
-                usedPositions = usedPositions.filter(item => item !== actualPosition);
-                usedPositions.push(activeDice.position);                
 
                 // Después de mover, verificar si hay dados adyacentes con la misma cara
                 if (activeDice.numberFace > 1){
@@ -272,6 +256,7 @@ if (canvas.getContext) {
         ctx.fillStyle = "#6b7f82";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+        usedPositions = []
         // Actualizar y dibujar cada dado
         for (let dice of dices) {
             dice.update(ctx);
@@ -287,9 +272,11 @@ if (canvas.getContext) {
     startInterval();
 
     print_button.addEventListener("click", (e) => {
+        console.log("OBJETOS:");
         console.log(dices);
-        console.log(timer)
-        // const objetoActivo = dices.find(objeto => objeto.active === true);
+        console.log(usedPositions);
+        const objetoActivo = dices.find(objeto => objeto.active === true);
+        checkForMatches(objetoActivo);
     })
 
     // Evento para el botón de control

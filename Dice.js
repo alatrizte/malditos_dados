@@ -1,4 +1,4 @@
-const gridPositions = {};
+export const gridPositions = {};
 const gridSize = 6; // Tamaño de la cuadrícula (6x6)
 const squareSize = 50; // Tamaño de cada cuadrado (50px * 50px)
 const offset = 5; // Offset inicial para x e y
@@ -6,7 +6,7 @@ const offset = 5; // Offset inicial para x e y
 // Itera sobre las filas y columnas de la cuadrícula
 for (let row = 0; row < gridSize; row++) {
     for (let col = 0; col < gridSize; col++) {
-        const position = row * gridSize + col + 1;
+        let position = row * gridSize + col + 1;
         const x = offset + col * squareSize;
         const y = offset + row * squareSize;
         gridPositions[position] = { x: x, y: y };
