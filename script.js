@@ -1,5 +1,11 @@
 import { Dice } from './Dice.js';
 import { gridPositions } from './Dice.js';
+import { contarGrupos } from './contar_grupos.js';
+import { diceMap } from './dice_map.js';
+import { generateUniquePosition } from './utils.js';
+import { getRandomNumber } from './utils.js';
+import { activateRandomDice } from './utils.js';
+import { crearMatrizDePosiciones } from './utils.js';
 
 const canvas = document.getElementById("canvas");
 const print_button = document.getElementById("print");
@@ -17,55 +23,25 @@ if (canvas.getContext) {
     marcador.innerHTML = puntuacion;
     let timer = 7000;
 
-    // Mapeo de las caras del dado según la dirección de la tecla
-    const diceMap = {
-        1: { ArrowLeft: {number: 3, x: -50, y: 0}, 
-            ArrowRight: {number: 4, x: 50, y: 0},
-            ArrowUp: {number: 5, x: 0, y: -50},
-            ArrowDown: {number: 2, x: 0, y: 50} 
-        },
-        2: { ArrowLeft: {number: 4, x: -50, y: 0}, 
-            ArrowRight: {number: 3, x: 50, y: 0}, 
-            ArrowUp: {number: 1, x: 0, y: -50}, 
-            ArrowDown: {number: 6, x: 0, y: 50} 
-        },
-        3: { ArrowLeft: {number: 5, x: -50, y: 0}, 
-            ArrowRight: {number: 2, x: 50, y: 0}, 
-            ArrowUp: {number: 1, x: 0, y: -50}, 
-            ArrowDown: {number: 6, x: 0, y: 50} 
-        },
-        4: { ArrowLeft: {number: 6, x: -50, y: 0}, 
-            ArrowRight: {number: 1, x: 50, y: 0}, 
-            ArrowUp: {number: 5, x: 0, y: -50}, 
-            ArrowDown: {number: 2, x: 0, y: 50} 
-        },
-        5: { ArrowLeft: {number: 3, x: -50, y: 0}, 
-            ArrowRight: {number: 4, x: 50, y: 0}, 
-            ArrowUp: {number: 6, x: 0, y: -50}, 
-            ArrowDown: {number: 1, x: 0, y: 50} 
-        },
-        6: { ArrowLeft: {number: 3, x: -50, y: 0}, 
-            ArrowRight: {number: 4, x: 50, y: 0}, 
-            ArrowUp: {number: 2, x: 0, y: -50}, 
-            ArrowDown: {number: 5, x: 0, y: 50} 
-        },
-    };
+    let usedPositions = [];
+    // Ahora, creamos un array para almacenar los dados
+    let dices = [];
 
-    function crearMatrizDePosiciones(posiciones, filas=6, columnas=6) {
-        // Crear una matriz llena de ceros
-        const matriz = Array.from({ length: filas }, () => Array(columnas).fill(0));
-    
-        // Llenar la matriz basándose en las posiciones dadas
-        posiciones.forEach(posicion => {
-            if (posicion > 0 && posicion <= filas * columnas) {
-                const fila = Math.floor((posicion - 1) / columnas);
-                const columna = (posicion - 1) % columnas;
-                matriz[fila][columna] = 1;
-            }
-        });
-    
-        return matriz;
-    };
+    // Función para añadir un nuevo objeto
+    function addNewObject(dict, maxPosition=36, maxN=6) {
+        if (dices.length < 36){
+            const newKey = Object.keys(dict).length + 1;
+            let numberFace = getRandomNumber(1, maxN);
+            let position = generateUniquePosition(usedPositions, maxPosition);
+            usedPositions.push(position);
+            // Creamos un nuevo dado y lo añadimos al array
+            let dice = new Dice(position, numberFace);
+            dices.push(dice);
+        } else  {
+            console.log("Game OVER");
+            stopInterval();
+        }
+    }
 
     function deleteDices(number){
         // Guardamos la longitud original del array
@@ -149,86 +125,6 @@ if (canvas.getContext) {
         }
     });
 
-    function contarGrupos(grid, number) {
-        const filas = grid.length;
-        const columnas = grid[0].length;
-        const visitados = Array.from({ length: filas }, () => Array(columnas).fill(false));
-        const grupos = [];
-    
-        function dfs(x, y) {
-            if (x < 0 || y < 0 || x >= filas || y >= columnas || visitados[x][y] || grid[x][y] === 0) {
-                return 0;
-            }
-    
-            visitados[x][y] = true;
-            let tamaño = 1;
-    
-            // Explorar las cuatro direcciones
-            tamaño += dfs(x - 1, y); // arriba
-            tamaño += dfs(x + 1, y); // abajo
-            tamaño += dfs(x, y - 1); // izquierda
-            tamaño += dfs(x, y + 1); // derecha
-    
-            return tamaño;
-        }
-    
-        for (let i = 0; i < filas; i++) {
-            for (let j = 0; j < columnas; j++) {
-                if (grid[i][j] === 1 && !visitados[i][j]) {
-                    const tamaño = dfs(i, j);
-                    if (tamaño == number){
-                        grupos.push(tamaño);
-                    }
-                }
-            }
-        }
-    
-        return grupos;
-    }
-
-    // Funciones auxiliares (mantén las que ya teníamos)
-    function getRandomNumber(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function generateUniquePosition(usedPositions, maxPosition) {
-        let randomPos;
-        do {
-            randomPos = getRandomNumber(1, maxPosition);
-        } while (usedPositions.includes(randomPos));
-        return randomPos;
-    }
-
-    let usedPositions = [];
-    // Función para añadir un nuevo objeto
-    function addNewObject(dict, maxPosition=36, maxN=6) {
-            if (dices.length < 36){
-            const newKey = Object.keys(dict).length + 1;
-            let numberFace = getRandomNumber(1, maxN);
-            let position = generateUniquePosition(usedPositions, maxPosition);
-            usedPositions.push(position);
-            // Creamos un nuevo dado y lo añadimos al array
-            let dice = new Dice(position, numberFace);
-            dices.push(dice);
-        } else  {
-            console.log("Game OVER");
-            stopInterval();
-        }
-
-    }
-
-    function activateRandomDice(dices) {
-        // Seleccionar un dado aleatorio
-        const randomIndex = Math.floor(Math.random() * dices.length);
-        const selectedDice = dices[randomIndex];
-    
-        // Activar el dado seleccionado
-        selectedDice.active = true;
-    }
-
-    // Ahora, creamos un array para almacenar los dados
-    let dices = [];
-
     for (let i = 1; i <= 6; i++) {
         addNewObject(dices)
     }
@@ -247,7 +143,6 @@ if (canvas.getContext) {
         clearInterval(intervalId);
     }
     
-
     function animate() {
         // Limpiar el canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
