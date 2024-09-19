@@ -21,7 +21,7 @@ if (canvas.getContext) {
     
     let puntuacion = 0;
     marcador.innerHTML = puntuacion;
-    let timer = 7000;
+    let timer = 5000;
 
     let usedPositions = [];
     // Ahora, creamos un array para almacenar los dados
@@ -37,9 +37,10 @@ if (canvas.getContext) {
             // Creamos un nuevo dado y lo añadimos al array
             let dice = new Dice(position, numberFace);
             dices.push(dice);
-        } else  {
-            console.log("Game OVER");
-            stopInterval();
+            if (dices.length == 36) {
+                console.log("Game OVER");
+                stopInterval();
+            }
         }
     }
 
@@ -54,7 +55,7 @@ if (canvas.getContext) {
 
         puntuacion += elementosEliminados * number
         timer -= puntuacion * 10;
-        console.log(puntuacion);
+        console.log(timer);
         marcador.innerHTML = puntuacion;
     }
 
@@ -125,10 +126,12 @@ if (canvas.getContext) {
         }
     });
 
+    // Iniciamos creando 6 dados aleatorios
     for (let i = 1; i <= 6; i++) {
         addNewObject(dices)
     }
-
+    
+    // De los 6 dados activamos uno aleatoriamente
     activateRandomDice(dices);
 
     // Función para iniciar el intervalo
@@ -159,7 +162,6 @@ if (canvas.getContext) {
                 usedPositions.push(dice.position);
             }
         }
-
         // Solicitar el siguiente cuadro de animación
         window.requestAnimationFrame(animate);
     }
