@@ -6,12 +6,14 @@ import { generateUniquePosition } from './utils.js';
 import { getRandomNumber } from './utils.js';
 import { activateRandomDice } from './utils.js';
 import { crearMatrizDePosiciones } from './utils.js';
+import { DynamicInterval } from './DinamicalInternal.js';
 
 const canvas = document.getElementById("canvas");
 const print_button = document.getElementById("print");
 const control_button = document.getElementById("control");
 const marcador = document.getElementById("marcador");
-let intervalId; 
+
+let tiempoParado = false;
 
 if (canvas.getContext) {
     /** @type {CanvasRenderingContext2D} */
@@ -37,13 +39,16 @@ if (canvas.getContext) {
             // Creamos un nuevo dado y lo añadimos al array
             let dice = new Dice(position, numberFace);
             dices.push(dice);
+
             if (dices.length == 36) {
                 console.log("Game OVER");
-                stopInterval();
+                intervalo.stop();
+                tiempoParado = true;
             }
         }
     }
 
+    // Borrar dados
     function deleteDices(number){
         // Guardamos la longitud original del array
         const longitudOriginal = dices.length;
@@ -54,8 +59,9 @@ if (canvas.getContext) {
         const elementosEliminados = longitudOriginal - dices.length;
 
         puntuacion += elementosEliminados * number
-        timer -= puntuacion * 10;
+        timer -= puntuacion * 3;
         console.log(timer);
+        intervalo.setDelay(timer);
         marcador.innerHTML = puntuacion;
     }
 
@@ -81,47 +87,49 @@ if (canvas.getContext) {
     
     // Escucha las teclas de flecha
     document.addEventListener('keydown', (event) => {
-        const { key } = event;
-    
-        // Encontrar el dado que está activo
-        let activeDice = dices.find(dice => dice.active);
-    
-        if (key.startsWith('Arrow') && activeDice) {
-            // Verificar los límites del tablero
-            if (activeDice.coord_position.x >= 255 && key == "ArrowRight") return;
-            if (activeDice.coord_position.x <= 5 && key == "ArrowLeft") return;
-            if (activeDice.coord_position.y >= 255 && key == "ArrowDown") return;
-            if (activeDice.coord_position.y <= 5 && key == "ArrowUp") return;
-    
-            // Calcular la nueva posición
-            const newX = activeDice.coord_position.x + diceMap[activeDice.numberFace][key].x;
-            const newY = activeDice.coord_position.y + diceMap[activeDice.numberFace][key].y;
-            
-            // Verificar si la nueva posición está ocupada
-            const isOccupied = dices.find(dice => dice.coord_position.x === newX && dice.coord_position.y === newY);
+        if (!tiempoParado) {
+            const { key } = event;
+        
+            // Encontrar el dado que está activo
+            let activeDice = dices.find(dice => dice.active);
+        
+            if (key.startsWith('Arrow') && activeDice) {
+                // Verificar los límites del tablero
+                if (activeDice.coord_position.x >= 255 && key == "ArrowRight") return;
+                if (activeDice.coord_position.x <= 5 && key == "ArrowLeft") return;
+                if (activeDice.coord_position.y >= 255 && key == "ArrowDown") return;
+                if (activeDice.coord_position.y <= 5 && key == "ArrowUp") return;
+        
+                // Calcular la nueva posición
+                const newX = activeDice.coord_position.x + diceMap[activeDice.numberFace][key].x;
+                const newY = activeDice.coord_position.y + diceMap[activeDice.numberFace][key].y;
+                
+                // Verificar si la nueva posición está ocupada
+                const isOccupied = dices.find(dice => dice.coord_position.x === newX && dice.coord_position.y === newY);
 
-            if (!isOccupied) {
-                // Mover el dado según el mapeo de teclas y actualizar la posición
-                activeDice.coord_position.x = newX;
-                activeDice.coord_position.y = newY;
-                activeDice.numberFace = diceMap[activeDice.numberFace][key].number;
-                let actualPosition = activeDice.position;
-                // Actualizar la posición del dado en el tablero
-                for (const [k, v] of Object.entries(gridPositions)) {
-                    if (v.x === activeDice.coord_position.x && v.y === activeDice.coord_position.y) {
-                        activeDice.position = parseInt(k);
-                        break; // Rompe el ciclo una vez que se encuentra la coincidencia
+                if (!isOccupied) {
+                    // Mover el dado según el mapeo de teclas y actualizar la posición
+                    activeDice.coord_position.x = newX;
+                    activeDice.coord_position.y = newY;
+                    activeDice.numberFace = diceMap[activeDice.numberFace][key].number;
+                    let actualPosition = activeDice.position;
+                    // Actualizar la posición del dado en el tablero
+                    for (const [k, v] of Object.entries(gridPositions)) {
+                        if (v.x === activeDice.coord_position.x && v.y === activeDice.coord_position.y) {
+                            activeDice.position = parseInt(k);
+                            break; // Rompe el ciclo una vez que se encuentra la coincidencia
+                        }
+                    }
+
+                    // Después de mover, verificar si hay dados adyacentes con la misma cara
+                    if (activeDice.numberFace > 1){
+                        checkForMatches(activeDice.numberFace);
                     }
                 }
-
-                // Después de mover, verificar si hay dados adyacentes con la misma cara
-                if (activeDice.numberFace > 1){
-                    checkForMatches(activeDice.numberFace);
+                else {
+                    isOccupied.active = true;
+                    activeDice.active = false;
                 }
-            }
-            else {
-                isOccupied.active = true;
-                activeDice.active = false;
             }
         }
     });
@@ -135,17 +143,9 @@ if (canvas.getContext) {
     activateRandomDice(dices);
 
     // Función para iniciar el intervalo
-    function startInterval() {
-        intervalId = setInterval(() => {
-            addNewObject(dices);
-        }, timer);
-    }
+    const intervalo = new DynamicInterval(() => addNewObject(dices), timer);
 
-    // Función para detener el intervalo
-    function stopInterval() {
-        clearInterval(intervalId);
-    }
-    
+    // animate
     function animate() {
         // Limpiar el canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -165,8 +165,9 @@ if (canvas.getContext) {
         // Solicitar el siguiente cuadro de animación
         window.requestAnimationFrame(animate);
     }
+
     animate();
-    startInterval();
+    intervalo.start();
 
     print_button.addEventListener("click", (e) => {
         console.log("OBJETOS:");
@@ -180,14 +181,20 @@ if (canvas.getContext) {
     control_button.addEventListener('click', function() {
         if (this.classList.contains('paused')) {
             // Si está pausado, reiniciar el intervalo
-            startInterval();
+            // startInterval();
+            intervalo.start();
             this.classList.remove('paused');
             this.textContent = 'Pausar';
+            tiempoParado = false;
+            console.log("Tiempo reiniciado");
         } else {
             // Si está en marcha, detener el intervalo
-            stopInterval();
+            // stopInterval();
+            intervalo.stop();
             this.classList.add('paused');
             this.textContent = 'Reanudar';
+            tiempoParado = true;
+            console.log("Tiempo pausaoo");
         }
     });
 }
