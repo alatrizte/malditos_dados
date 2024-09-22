@@ -7,6 +7,7 @@ import { getRandomNumber } from './utils.js';
 import { activateRandomDice } from './utils.js';
 import { crearMatrizDePosiciones } from './utils.js';
 import { DynamicInterval } from './DinamicalInternal.js';
+import { incrementarValor } from './utils.js';
 
 const canvas = document.getElementById("canvas");
 const print_button = document.getElementById("print");
@@ -28,6 +29,15 @@ if (canvas.getContext) {
     let usedPositions = [];
     // Ahora, creamos un array para almacenar los dados
     let dices = [];
+
+    // lista de números que han eliminado
+    const del_num = {
+        2: 1,
+        3: 1,
+        4: 1,
+        5: 1,
+        6: 1
+    }
 
     // Función para añadir un nuevo objeto
     function addNewObject(dict, maxPosition=36, maxN=6) {
@@ -58,8 +68,15 @@ if (canvas.getContext) {
         // Calculamos la diferencia
         const elementosEliminados = longitudOriginal - dices.length;
 
-        puntuacion += elementosEliminados * number
+        puntuacion += elementosEliminados * number * del_num[number];
+
+        // añadimos a la lista de números eliminados
+        incrementarValor(del_num, number);
+        
         timer -= puntuacion * 3;
+        timer < 1000 ? timer = 1000 : timer = timer
+
+        
         console.log(timer);
         intervalo.setDelay(timer);
         marcador.innerHTML = puntuacion;

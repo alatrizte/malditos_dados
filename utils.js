@@ -37,3 +37,12 @@ export function crearMatrizDePosiciones(posiciones, filas=6, columnas=6) {
 
     return matriz;
 };
+
+export function incrementarValor(diccionario, clave) {
+    if (clave in diccionario) {
+      diccionario[clave]++;
+    } else {
+      diccionario[clave] = 1;
+    }
+    return diccionario;
+};
