@@ -73,7 +73,7 @@ if (canvas.getContext) {
         // añadimos a la lista de números eliminados
         incrementarValor(del_num, number);
         
-        timer -= puntuacion * 3;
+        timer -= puntuacion;
         timer < 1000 ? timer = 1000 : timer = timer
 
         

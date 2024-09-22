@@ -7,15 +7,24 @@
     <title>Malditos Dados</title>
 </head>
 <body>
-    <div class="content">
+    <div class="content column">
         <h1>Malditos Dados</h1>
         <h3>Puntuación</h3>
         <div id="marcador"></div>
     </div>
     <div class="content">
+        <div id="multiplicadores" class="content column">
+            <div id="2x">2X</div>
+            <div id="3x">3x</div>
+            <div id="4x">4x</div>
+            <div id="5x">5x</div>
+            <div id="6x">6x</div>
+        </div>
         <canvas id="canvas"></canvas>
-        <button id="print">Print</button>
-        <button id="control">Pause</button>
+        <div class="botones content column">
+            <button id="print">Print</button>
+            <button id="control">Pause</button>
+        </div>
     </div>
     <script src="script.js" type="module"></script>
 </body>

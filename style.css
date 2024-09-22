@@ -22,6 +22,9 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.column {
     flex-direction: column;
 }
 
@@ -50,4 +53,8 @@ h3 {
 canvas {
     border: 10px solid var(--color-primario);
     border-radius: 5px;
+}
+
+#multiplicadores {
+    padding: 5px;
 }
