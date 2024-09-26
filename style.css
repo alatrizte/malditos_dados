@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+
 :root {
     --color-primario: #8eb8e5;
     --color-secundario: #7c99b4;
@@ -14,7 +17,7 @@
 
 body {
     background-color: var(--color-fondo);
-    font-family: "ubuntu";
+    font-family: "Ubuntu", system-ui;;
     color: white;
 }
 
