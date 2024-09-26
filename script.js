@@ -51,7 +51,7 @@ if (canvas.getContext) {
             dices.push(dice);
 
             if (dices.length == 36) {
-                console.log("Game OVER");
+                document.getElementsByClassName("game-over")[0].style.display = "block";
                 intervalo.stop();
                 tiempoParado = true;
             }
@@ -69,6 +69,7 @@ if (canvas.getContext) {
         const elementosEliminados = longitudOriginal - dices.length;
 
         puntuacion += elementosEliminados * number * del_num[number];
+        document.getElementById(`${number}x`).innerText = `${number}x ${del_num[number]}`;
 
         // añadimos a la lista de números eliminados
         incrementarValor(del_num, number);

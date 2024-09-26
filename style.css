@@ -58,3 +58,11 @@ canvas {
 #multiplicadores {
     padding: 5px;
 }
+
+.game-over {
+    display: none;
+    font-size: 32px;
+    color: #8eb8e5;
+    font-weight: bold;
+    margin-top: 15px;
+}
