@@ -25,7 +25,7 @@ export function contarGrupos(grid, number) {
         for (let j = 0; j < columnas; j++) {
             if (grid[i][j] === 1 && !visitados[i][j]) {
                 const tamaño = dfs(i, j);
-                if (tamaño == number){
+                if (tamaño >= number){
                     grupos.push(tamaño);
                 }
             }
