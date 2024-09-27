@@ -24,7 +24,8 @@ export class Dice {
     draw(ctx) {
         // Cuadrado con esquinas redondeadas
         function fillRectRound(ctx, x, y, lado, radio, color) {
-            ctx.strokeStyle = color;
+            ctx.strokeStyle = "#8eb8e5";
+            ctx.lineWidth = 2; // Grosor de la línea
             ctx.fillStyle = color;
             ctx.beginPath();
             ctx.moveTo(x + radio, y);
