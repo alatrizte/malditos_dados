@@ -10,7 +10,7 @@ import { DynamicInterval } from './DinamicalInternal.js';
 import { incrementarValor } from './utils.js';
 
 const canvas = document.getElementById("canvas");
-const print_button = document.getElementById("print");
+// const print_button = document.getElementById("print");
 const control_button = document.getElementById("control");
 const marcador = document.getElementById("marcador");
 
@@ -24,7 +24,10 @@ if (canvas.getContext) {
     
     let puntuacion = 0;
     marcador.innerHTML = puntuacion;
+
+    ////////// Tiempo inicial de aparición de dados ///////
     let timer = 5000;
+    ///////////////////////////////////////////////////////
 
     let usedPositions = [];
     // Ahora, creamos un array para almacenar los dados
@@ -52,6 +55,8 @@ if (canvas.getContext) {
 
             if (dices.length == 36) {
                 document.getElementsByClassName("game-over")[0].style.display = "block";
+                control_button.textContent = "Nueva Partida";
+                control_button.classList.add("reload");
                 intervalo.stop();
                 tiempoParado = true;
             }
@@ -187,17 +192,19 @@ if (canvas.getContext) {
     animate();
     intervalo.start();
 
-    print_button.addEventListener("click", (e) => {
-        console.log("OBJETOS:");
-        console.log(dices);
-        console.log(usedPositions);
-        const objetoActivo = dices.find(objeto => objeto.active === true);
-        checkForMatches(objetoActivo);
-    })
+    // print_button.addEventListener("click", (e) => {
+    //     console.log("OBJETOS:");
+    //     console.log(dices);
+    //     console.log(usedPositions);
+    //     const objetoActivo = dices.find(objeto => objeto.active === true);
+    //     checkForMatches(objetoActivo);
+    // })
 
     // Evento para el botón de control
     control_button.addEventListener('click', function() {
-        if (this.classList.contains('paused')) {
+        if (this.classList.contains("reload")) {
+            location.reload()
+        } else if (this.classList.contains('paused')) {
             // Si está pausado, reiniciar el intervalo
             // startInterval();
             intervalo.start();
