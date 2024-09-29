@@ -9,6 +9,32 @@ import { crearMatrizDePosiciones } from './utils.js';
 import { DynamicInterval } from './DinamicalInternal.js';
 import { incrementarValor } from './utils.js';
 
+// Función para emular el evento 'keydown'
+function emulateKey(key) {
+    const event = new KeyboardEvent('keydown', {
+        key: key,
+        bubbles: true,
+        cancelable: true
+    });
+    document.dispatchEvent(event);
+}
+// Añadir los event listeners para los botones de la cruceta
+document.querySelector('.arrow.up').addEventListener('click', () => {
+    emulateKey('ArrowUp');
+});
+
+document.querySelector('.arrow.left').addEventListener('click', () => {
+    emulateKey('ArrowLeft');
+});
+
+document.querySelector('.arrow.right').addEventListener('click', () => {
+    emulateKey('ArrowRight');
+});
+
+document.querySelector('.arrow.down').addEventListener('click', () => {
+    emulateKey('ArrowDown');
+});
+
 const canvas = document.getElementById("canvas");
 // const print_button = document.getElementById("print");
 const control_button = document.getElementById("control");

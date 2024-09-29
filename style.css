@@ -83,3 +83,52 @@ canvas {
     font-weight: bold;
     margin-top: 15px;
 }
+
+/* Ocultar la cruceta por defecto */
+.cruceta {
+    display: none;
+}
+
+/* Row of horizontal buttons */
+.horizontal-buttons {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+/* Arrow button styles */
+.arrow {
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    margin: -2px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Hover and active styles for buttons */
+.arrow:hover {
+    background-color: #0056b3;
+}
+
+.arrow:active {
+    background-color: #003f7f;
+}
+
+@media only screen and (max-width: 768px) {
+    h1 {
+        font-size: 42px;
+    }
+
+    .cruceta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
