@@ -100,7 +100,7 @@ if (canvas.getContext) {
         const elementosEliminados = longitudOriginal - dices.length;
 
         puntuacion += elementosEliminados * number * del_num[number];
-        document.getElementById(`${number}x`).innerText = `${number}x ${del_num[number]}`;
+        document.getElementById(`${number}x`).innerHTML = `${number}x<span>${del_num[number].toString().padStart(2, '0')}</span>`;
 
         // añadimos a la lista de números eliminados
         incrementarValor(del_num, number);
@@ -108,8 +108,7 @@ if (canvas.getContext) {
         timer -= puntuacion;
         timer < 1000 ? timer = 1000 : timer = timer
 
-        
-        console.log(timer);
+
         intervalo.setDelay(timer);
         marcador.innerHTML = puntuacion;
     }

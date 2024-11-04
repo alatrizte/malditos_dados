@@ -132,3 +132,15 @@ canvas {
         align-items: center;
     }
 }
+
+#multiplicadores div{
+    padding: 10px;
+    font-size: large;
+}
+
+#multiplicadores div span {
+    background-color: var(--color-secundario);
+    padding: 6px;
+    border-radius: 50%;
+    font-weight: 900;
+}
